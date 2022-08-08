@@ -52,7 +52,10 @@ pub fn get_serial_file(file: Option<&PathBuf>) -> Result<PathBuf> {
                     return Ok(try_serial);
                 }
             }
-            Ok(PathBuf::from("/dev/null"))
+            Err(serialport::Error::new(
+                serialport::ErrorKind::NoDevice,
+                "File does not exist",
+            ))
         }
     }
 }

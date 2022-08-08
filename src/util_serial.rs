@@ -1,8 +1,32 @@
-use serialport::{Result, SerialPortInfo};
+use serialport::{Result, SerialPortInfo, SerialPortType};
 use std::path::PathBuf;
 
 pub fn list_serials() -> Result<Vec<SerialPortInfo>> {
-    serialport::available_ports()
+    let mut serial_ports = match serialport::available_ports() {
+        Ok(serial_ports) => serial_ports,
+        _ => vec![],
+    };
+    let deskpi_default_serial = PathBuf::from("/dev/ttyDPIFAN0");
+    if deskpi_default_serial.exists() {
+        serial_ports.insert(
+            0,
+            SerialPortInfo {
+                port_name: deskpi_default_serial
+                    .into_os_string()
+                    .into_string()
+                    .unwrap(),
+                port_type: SerialPortType::Unknown,
+            },
+        );
+    }
+    if serial_ports.len() > 0 {
+        Ok(serial_ports)
+    } else {
+        Err(serialport::Error::new(
+            serialport::ErrorKind::NoDevice,
+            "No devices found",
+        ))
+    }
 }
 
 pub fn get_serial_file(file: Option<&PathBuf>) -> Result<PathBuf> {

@@ -73,12 +73,15 @@ pub fn cli() -> Command<'static> {
 }
 
 pub fn get_temperature(args: &ArgMatches) {
-    let raw = args.get_one::<bool>("raw").unwrap();
+    let raw = match args.get_one::<bool>("raw") {
+        Some(raw) => *raw,
+        _ => false,
+    };
     let file = util_temp::get_temp_file(args.get_one::<PathBuf>("temp_file"));
     let temp = util_temp::get_temp(&file);
     match temp {
         Ok(temp) => {
-            if *raw {
+            if raw {
                 println!("{}", temp);
             } else {
                 println!("CPU temperature: {:7.3}", temp as f32 / 1000.0);

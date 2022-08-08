@@ -8,16 +8,20 @@ pub fn list_serials() -> Result<Vec<SerialPortInfo>> {
     };
     let deskpi_default_serial = PathBuf::from("/dev/ttyDPIFAN0");
     if deskpi_default_serial.exists() {
-        serial_ports.insert(
-            0,
-            SerialPortInfo {
-                port_name: deskpi_default_serial
-                    .into_os_string()
-                    .into_string()
-                    .unwrap(),
-                port_type: SerialPortType::Unknown,
-            },
-        );
+        match deskpi_default_serial
+            .into_os_string()
+            .into_string() {
+            Ok(deskpi_default_serial) => {
+                serial_ports.insert(
+                    0,
+                    SerialPortInfo {
+                        port_name: deskpi_default_serial,
+                        port_type: SerialPortType::Unknown,
+                    },
+                );
+            }
+            Err(_) => (),
+        }
     }
     if serial_ports.len() > 0 {
         Ok(serial_ports)

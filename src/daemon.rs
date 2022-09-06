@@ -64,6 +64,8 @@ pub fn run(temp_file: PathBuf, serial_file: PathBuf, gpio: Option<u8>) {
         sleep(Duration::from_millis(SLEEP_TIME));
         if sleep_time - SLEEP_TIME > 0 {
             sleep_time -= SLEEP_TIME;
+        } else {
+            sleep_time = 0;
         }
     }
 }

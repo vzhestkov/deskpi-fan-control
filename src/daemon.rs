@@ -6,6 +6,8 @@ use super::util_gpio;
 use super::util_serial;
 use super::util_temp;
 
+const SLEEP_TIME: u64 = 5000;
+
 pub fn run(temp_file: PathBuf, serial_file: PathBuf, gpio: Option<u8>) {
     let mut lite_mode = false;
     let mut gpio_out_pin: Option<rppal::gpio::OutputPin> = match gpio {
@@ -26,7 +28,9 @@ pub fn run(temp_file: PathBuf, serial_file: PathBuf, gpio: Option<u8>) {
         },
     };
     let temp_fan_speed_map = util_temp::get_default_temp_speed_map(lite_mode);
+    let mut sleep_time: u64 = 0;
     let mut prev_fan_speed: u8 = 255;
+    let mut fan_speed: u8 = 0;
     loop {
         let temp = util_temp::get_temp(&temp_file);
         let temp = match temp {
@@ -36,18 +40,17 @@ pub fn run(temp_file: PathBuf, serial_file: PathBuf, gpio: Option<u8>) {
                 return ();
             }
         };
-        println!("CPU temperature: {}", temp);
-        let mut fan_speed: u8 = 0;
-        let mut sleep_time: u64 = 0;
         for temp_fan_speed_item in &temp_fan_speed_map {
-            if temp >= temp_fan_speed_item.temp {
-                fan_speed = temp_fan_speed_item.fan_speed;
-                sleep_time = temp_fan_speed_item.sleep_time;
+            if temp >= temp_fan_speed_item.temp && fan_speed != temp_fan_speed_item.fan_speed {
+                if temp_fan_speed_item.fan_speed > fan_speed || sleep_time == 0 {
+                    fan_speed = temp_fan_speed_item.fan_speed;
+                    sleep_time = temp_fan_speed_item.sleep_time;
+                }
                 break;
             }
         }
         if prev_fan_speed != fan_speed {
-            println!("Set fan speed to {}%", fan_speed);
+            println!("Set fan speed to {}% as CPU temp is {:3} C", fan_speed, temp as f32 / 1000.0);
             prev_fan_speed = fan_speed;
             match gpio_out_pin {
                 Some(ref mut gpio_out_pin) => {
@@ -58,9 +61,9 @@ pub fn run(temp_file: PathBuf, serial_file: PathBuf, gpio: Option<u8>) {
                 }
             }
         }
-        if sleep_time < 1000 {
-            sleep_time = 1000;
+        sleep(Duration::from_millis(SLEEP_TIME));
+        if sleep_time - SLEEP_TIME > 0 {
+            sleep_time -= SLEEP_TIME;
         }
-        sleep(Duration::from_millis(sleep_time));
     }
 }

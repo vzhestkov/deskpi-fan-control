@@ -23,7 +23,7 @@ pub fn set_fan_speed(gpio_pin: &mut OutputPin, fan_speed: u8) {
             gpio_pin.set_low();
         },
         _ => {
-            match gpio_pin.set_pwm_frequency(200.0, fan_speed as f64/100.0) {
+            match gpio_pin.set_pwm_frequency(10.0, fan_speed as f64/100.0) {
                 Ok(_) => {},
                 Err(_) => {
                     eprintln!("Error: Unable to set PWM with GPIO!")

@@ -8,4 +8,5 @@ edition = "2021"
 [dependencies]
 clap = { version = "3.2.16", features = ["derive", "cargo"] }
 libudev = "0.3.0"
+rppal = "0.13.1"
 serialport = "4.2.0"

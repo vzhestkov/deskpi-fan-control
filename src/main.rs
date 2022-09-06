@@ -1,5 +1,6 @@
 mod cli;
 mod daemon;
+mod util_gpio;
 mod util_serial;
 mod util_temp;
 

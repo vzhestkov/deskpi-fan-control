@@ -38,32 +38,76 @@ pub struct TempFanSpeedMapItem {
     pub sleep_time: u64,
 }
 
-pub fn get_default_temp_speed_map() -> Vec<TempFanSpeedMapItem> {
-    vec![
-        TempFanSpeedMapItem {
-            temp: 52000,
-            fan_speed: 100,
-            sleep_time: 180000,
-        },
-        TempFanSpeedMapItem {
-            temp: 45000,
-            fan_speed: 75,
-            sleep_time: 120000,
-        },
-        TempFanSpeedMapItem {
-            temp: 43000,
-            fan_speed: 50,
-            sleep_time: 90000,
-        },
-        TempFanSpeedMapItem {
-            temp: 40000,
-            fan_speed: 25,
-            sleep_time: 60000,
-        },
-        TempFanSpeedMapItem {
-            temp: 0,
-            fan_speed: 0,
-            sleep_time: 30000,
-        },
-    ]
+pub fn get_default_temp_speed_map(lite: bool) -> Vec<TempFanSpeedMapItem> {
+    match lite {
+        true => vec![
+            TempFanSpeedMapItem {
+                temp: 52000,
+                fan_speed: 100,
+                sleep_time: 180000,
+            },
+            TempFanSpeedMapItem {
+                temp: 50000,
+                fan_speed: 85,
+                sleep_time: 150000,
+            },
+            TempFanSpeedMapItem {
+                temp: 47000,
+                fan_speed: 75,
+                sleep_time: 120000,
+            },
+            TempFanSpeedMapItem {
+                temp: 45000,
+                fan_speed: 65,
+                sleep_time: 120000,
+            },
+            TempFanSpeedMapItem {
+                temp: 43000,
+                fan_speed: 50,
+                sleep_time: 90000,
+            },
+            TempFanSpeedMapItem {
+                temp: 40000,
+                fan_speed: 35,
+                sleep_time: 90000,
+            },
+            TempFanSpeedMapItem {
+                temp: 37000,
+                fan_speed: 25,
+                sleep_time: 60000,
+            },
+            TempFanSpeedMapItem {
+                temp: 0,
+                fan_speed: 0,
+                sleep_time: 30000,
+            },
+        ],
+        false => vec![
+            TempFanSpeedMapItem {
+                temp: 52000,
+                fan_speed: 100,
+                sleep_time: 180000,
+            },
+            TempFanSpeedMapItem {
+                temp: 45000,
+                fan_speed: 75,
+                sleep_time: 120000,
+            },
+            TempFanSpeedMapItem {
+                temp: 43000,
+                fan_speed: 50,
+                sleep_time: 90000,
+            },
+            TempFanSpeedMapItem {
+                temp: 40000,
+                fan_speed: 25,
+                sleep_time: 60000,
+            },
+            TempFanSpeedMapItem {
+                temp: 0,
+                fan_speed: 0,
+                sleep_time: 30000,
+            },
+        ],
+    }
 }

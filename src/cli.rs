@@ -19,7 +19,7 @@ pub fn cli() -> Command<'static> {
                 .long("version")
                 .short('V')
                 .help("Print version information")
-                .global(true),
+                .global(true)
         )
         .subcommand(
             clap::command!("daemon")
@@ -30,19 +30,39 @@ pub fn cli() -> Command<'static> {
                         .long("serial-file")
                         .short('s')
                         .help("The path to a serial device file")
+                        .display_order(3)
                         .takes_value(true)
-                        .value_name("FILE")
-                        .value_parser(value_parser!(PathBuf)),
+                        .value_name("SERIAL_FILE")
+                        .value_parser(value_parser!(PathBuf))
                 )
                 .arg(
                     Arg::new("temp_file")
                         .long("temperature-file")
                         .short('t')
                         .help("The path to a sensor file to read data from")
+                        .display_order(4)
                         .takes_value(true)
-                        .value_name("FILE")
-                        .value_parser(value_parser!(PathBuf)),
-                ),
+                        .value_name("TEMP_FILE")
+                        .value_parser(value_parser!(PathBuf))
+                )
+                .arg(
+                    Arg::new("lite")
+                        .long("lite")
+                        .short('l')
+                        .help("Run in Lite mode")
+                        .display_order(1)
+                        .action(ArgAction::SetTrue)
+                )
+                .arg(
+                    Arg::new("gpio")
+                        .long("gpio-pin")
+                        .short('g')
+                        .help("Use GPIO pin")
+                        .display_order(2)
+                        .takes_value(true)
+                        .value_name("PIN")
+                        .value_parser(value_parser!(u8))
+                )
         )
         .subcommand(
             clap::command!("get-temperature")
@@ -54,21 +74,21 @@ pub fn cli() -> Command<'static> {
                         .short('t')
                         .help("The path to a sensor file to read data from")
                         .takes_value(true)
-                        .value_name("FILE")
-                        .value_parser(value_parser!(PathBuf)),
+                        .value_name("TEMP_FILE")
+                        .value_parser(value_parser!(PathBuf))
                 )
                 .arg(
                     Arg::new("raw")
                         .long("raw")
                         .short('r')
                         .help("Return raw temperature value")
-                        .action(ArgAction::SetTrue),
-                ),
+                        .action(ArgAction::SetTrue)
+                )
         )
         .subcommand(
             clap::command!("list-serials")
                 .about("List all serial ports")
-                .display_order(3),
+                .display_order(3)
         )
 }
 
@@ -107,8 +127,15 @@ pub fn list_serials() {
 pub fn run_daemon(args: &ArgMatches) {
     let temp_file = util_temp::get_temp_file(args.get_one::<PathBuf>("temp_file"));
     let serial_file = util_serial::get_serial_file(args.get_one::<PathBuf>("serial_file"));
+    let gpio: Option<u8> = match args.get_one::<u8>("gpio") {
+        Some(gpio_pin) => Some(*gpio_pin),
+        _ => match args.get_one::<bool>("lite") {
+            Some(_) => Some(14),
+            _ => None,
+        },
+    };
     match serial_file {
-        Ok(serial_file) => daemon::run(temp_file, serial_file),
+        Ok(serial_file) => daemon::run(temp_file, serial_file, gpio),
         Err(_) => {
             eprintln!("Error: Unable to open serial file!");
         }

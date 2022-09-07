@@ -130,7 +130,7 @@ pub fn run_daemon(args: &ArgMatches) {
     let gpio: Option<u8> = match args.get_one::<u8>("gpio") {
         Some(gpio_pin) => Some(*gpio_pin),
         _ => match args.get_one::<bool>("lite") {
-            Some(_) => Some(14),
+            Some(true) => Some(14),
             _ => None,
         },
     };

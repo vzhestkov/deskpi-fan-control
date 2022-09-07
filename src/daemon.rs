@@ -9,7 +9,7 @@ use super::util_temp;
 const SLEEP_TIME: u64 = 5000;
 
 pub fn run(temp_file: PathBuf, serial_file: PathBuf, gpio: Option<u8>) {
-    let mut gpio_out_pin: Option<rppal::gpio::OutputPin> = match gpio {
+    let mut gpio_out_pin = match gpio {
         Some(gpio_pin) => match util_gpio::open_gpio_pin(gpio_pin) {
             Ok(pin) => {
                 println!("Running daemon in Lite mode (GPIO pin: {})", gpio_pin);
@@ -21,8 +21,20 @@ pub fn run(temp_file: PathBuf, serial_file: PathBuf, gpio: Option<u8>) {
             },
         },
         None => {
-            println!("Running daemon in Pro mode");
             None
+        },
+    };
+    let mut serial_port = match gpio {
+        Some(_) => None,
+        None => {
+            println!("Running daemon in Pro mode");
+            match util_serial::open_serial_port(&serial_file) {
+                Ok(serial_port) => Some(serial_port),
+                Err(_) => {
+                    eprintln!("Error: Unable to open serial port for writing!");
+                    return ();
+                },
+            }
         },
     };
     let temp_fan_speed_map = util_temp::get_default_temp_speed_map();
@@ -55,7 +67,12 @@ pub fn run(temp_file: PathBuf, serial_file: PathBuf, gpio: Option<u8>) {
                     util_gpio::set_fan_speed(gpio_out_pin, fan_speed);
                 },
                 _ => {
-                    util_serial::set_fan_speed(&serial_file, fan_speed);
+                    match serial_port {
+                        Some(ref mut serial_port) => {
+                            util_serial::set_fan_speed(serial_port, fan_speed);
+                        },
+                        _ => {}
+                    }
                 }
             }
         }

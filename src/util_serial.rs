@@ -1,4 +1,4 @@
-use serialport::{Result, SerialPortInfo, SerialPortType};
+use serialport::{Result, SerialPort, SerialPortInfo, SerialPortType};
 use std::path::PathBuf;
 
 pub fn list_serials() -> Result<Vec<SerialPortInfo>> {
@@ -64,15 +64,15 @@ pub fn get_serial_file(file: Option<&PathBuf>) -> Result<PathBuf> {
     }
 }
 
-pub fn set_fan_speed(file: &PathBuf, fan_speed: u8) {
-    match serialport::new(file.to_string_lossy(), 9600).open() {
-        Ok(mut serial_port) => {
-            println!("Sending PWM_{:03} to {}", fan_speed, file.to_string_lossy());
-            match serial_port.write(format!("PWM_{:03}\n", fan_speed).as_bytes()) {
-                Ok(_) => (),
-                Err(_) => (),
-            }
-        }
-        Err(err) => eprintln!("Error: on opening port {}: {}", file.to_string_lossy(), err),
+pub fn open_serial_port(file: &PathBuf) -> Result<Box<dyn SerialPort>> {
+    serialport::new(file.as_path().display().to_string(), 9600).open()
+}
+
+pub fn set_fan_speed(serial_port: &mut Box<dyn SerialPort>, fan_speed: u8) {
+    match serial_port.write(format!("PWM_{:03}\n", fan_speed).as_bytes()) {
+        Ok(_) => (),
+        Err(_) => {
+            eprintln!("Error: Unable to write to serial port!");
+        },
     }
 }

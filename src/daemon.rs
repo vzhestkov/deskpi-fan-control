@@ -9,11 +9,9 @@ use super::util_temp;
 const SLEEP_TIME: u64 = 5000;
 
 pub fn run(temp_file: PathBuf, serial_file: PathBuf, gpio: Option<u8>) {
-    let mut lite_mode = false;
     let mut gpio_out_pin: Option<rppal::gpio::OutputPin> = match gpio {
         Some(gpio_pin) => match util_gpio::open_gpio_pin(gpio_pin) {
             Ok(pin) => {
-                lite_mode = true;
                 println!("Running daemon in Lite mode (GPIO pin: {})", gpio_pin);
                 Some(pin)
             },
@@ -27,7 +25,7 @@ pub fn run(temp_file: PathBuf, serial_file: PathBuf, gpio: Option<u8>) {
             None
         },
     };
-    let temp_fan_speed_map = util_temp::get_default_temp_speed_map(lite_mode);
+    let temp_fan_speed_map = util_temp::get_default_temp_speed_map();
     let mut sleep_time: u64 = 0;
     let mut prev_fan_speed: u8 = 255;
     let mut fan_speed: u8 = 0;

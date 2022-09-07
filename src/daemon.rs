@@ -50,7 +50,7 @@ pub fn run(temp_file: PathBuf, serial_file: PathBuf, gpio: Option<u8>) {
             }
         }
         if prev_fan_speed != fan_speed {
-            println!("Set fan speed to {}% as CPU temp is {:3} C", fan_speed, temp as f32 / 1000.0);
+            println!("Set fan speed to {}% as CPU temp is {:.1}°C", fan_speed, temp as f32 / 1000.0);
             prev_fan_speed = fan_speed;
             match gpio_out_pin {
                 Some(ref mut gpio_out_pin) => {

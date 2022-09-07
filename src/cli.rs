@@ -104,7 +104,7 @@ pub fn get_temperature(args: &ArgMatches) {
             if raw {
                 println!("{}", temp);
             } else {
-                println!("CPU temperature: {:7.3}", temp as f32 / 1000.0);
+                println!("CPU temperature: {:7.3}°C", temp as f32 / 1000.0);
             }
         }
         Err(_) => eprintln!("Error: Unable to read temperature!"),
